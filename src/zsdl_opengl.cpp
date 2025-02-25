@@ -116,7 +116,9 @@ void ZSDL_Surface::LoadNewSurface(int w, int h)
 {
 	SDL_Surface *new_surface;
 
-	new_surface = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, w, h, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
+	// new_surface = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, w, h, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
+	new_surface = SDL_CreateRGBSurface(0, w, h, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
+	SDL_SetSurfaceBlendMode(new_surface, SDL_BLENDMODE_BLEND);
 
 	LoadBaseImage(new_surface);
 
@@ -142,7 +144,8 @@ void ZSDL_Surface::LoadBaseImage(SDL_Surface *sdl_surface_, bool delete_surface)
 
 	//convert to a guaranteed good format
 	SDL_Surface *new_ret;
-	new_ret = SDL_DisplayFormatAlpha(sdl_surface);
+	// new_ret = SDL_DisplayFormatAlpha(sdl_surface);
+	new_ret = SDL_ConvertSurfaceFormat(sdl_surface, SDL_PIXELFORMAT_RGBA32, 0);
 	if(delete_surface) SDL_FreeSurface( sdl_surface );
 	sdl_surface = new_ret;
 
@@ -163,7 +166,8 @@ void ZSDL_Surface::UseDisplayFormat()
 	if(use_opengl) return;
 
 	SDL_Surface *new_ret;
-	new_ret = SDL_DisplayFormat(sdl_surface);
+	// new_ret = SDL_DisplayFormat(sdl_surface);
+	new_ret = SDL_ConvertSurfaceFormat(sdl_surface, SDL_PIXELFORMAT_RGBA32, 0);
 	SDL_FreeSurface( sdl_surface );
 	sdl_surface = new_ret;
 
@@ -179,7 +183,8 @@ void ZSDL_Surface::MakeAlphable()
 
 	ZSDL_ModifyBlack(sdl_surface);
 	UseDisplayFormat();
-	SDL_SetColorKey(sdl_surface, SDL_SRCCOLORKEY, 0x000000); 
+	// SDL_SetColorKey(sdl_surface, SDL_SRCCOLORKEY, 0x000000); 
+	SDL_SetColorKey(sdl_surface, SDL_TRUE, SDL_MapRGB(sdl_surface->format, 0, 0, 0));  
 }
 
 bool ZSDL_Surface::LoadRotoZoomSurface()
@@ -318,8 +323,14 @@ void ZSDL_Surface::SetAlpha(char alpha_)
 
 	if(!use_opengl)
 	{
-		if(sdl_surface) SDL_SetAlpha(sdl_surface, SDL_RLEACCEL | SDL_SRCALPHA, alpha);
-		if(sdl_rotozoom) SDL_SetAlpha(sdl_rotozoom, SDL_RLEACCEL | SDL_SRCALPHA, alpha);
+		if(sdl_surface) {
+			// SDL_SetAlpha(sdl_surface, SDL_RLEACCEL | SDL_SRCALPHA, alpha);
+			SDL_SetSurfaceAlphaMod(sdl_surface, alpha);  
+		}
+		if(sdl_rotozoom) {
+			// SDL_SetAlpha(sdl_rotozoom, SDL_RLEACCEL | SDL_SRCALPHA, alpha);
+			SDL_SetSurfaceAlphaMod(sdl_rotozoom, alpha);  
+		}
 	}
 }
 

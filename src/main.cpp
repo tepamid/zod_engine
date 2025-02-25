@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 	else
 	{
 		//run a server, then connect to it
-		server_thread = SDL_CreateThread(run_server_thread, NULL);
+		server_thread = SDL_CreateThread(run_server_thread, "server_thread", NULL);
 		run_player_thread();
 	}
 

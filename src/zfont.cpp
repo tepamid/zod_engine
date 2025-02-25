@@ -50,7 +50,9 @@ SDL_Surface *ZFont::Render(const char *message)
 	if(!max_height) return NULL;
 
 	//make our surface
-	surface = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, total_width, max_height, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
+	// SDL1 // surface = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, total_width, max_height, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
+	surface = SDL_CreateRGBSurface(0, total_width, max_height, 32, 0, 0, 0, 0);
+	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
 
 	//render to it
 	to_rect.x = 0;

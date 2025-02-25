@@ -434,7 +434,8 @@ SDL_Surface *ZSDL_ConvertImage(SDL_Surface *src)
 	{
 		SDL_Surface *new_ret;
 
-		new_ret = SDL_DisplayFormatAlpha(src);
+		// SDL1 // new_ret = SDL_DisplayFormatAlpha(src);
+		new_ret = SDL_ConvertSurfaceFormat(src, SDL_PIXELFORMAT_RGBA32, 0);
 		SDL_FreeSurface( src );
 		src = new_ret;
 	}
@@ -492,8 +493,9 @@ SDL_Surface *CopyImage(SDL_Surface *original)
 	
 	if(!original) return NULL;
 	
-	copy = SDL_DisplayFormatAlpha(original);//SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, original->w, original->h, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
+	// SDL1 // copy = SDL_DisplayFormatAlpha(original); //SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, original->w, original->h, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
 	//copy = ZSDL_ConvertImage(copy);
+	copy = SDL_ConvertSurfaceFormat(original, SDL_PIXELFORMAT_RGBA32, 0);
 	
 	SDL_BlitSurface(original, NULL, copy, NULL);
 	
@@ -509,8 +511,9 @@ SDL_Surface *CopyImageShifted(SDL_Surface *original, int x, int y)
 	if(x < 0) return CopyImage(original);
 	if(y < 0) return CopyImage(original);
 	
-	copy = SDL_DisplayFormatAlpha(original);//SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, original->w + x, original->h + y, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
+	// SDL1 // copy = SDL_DisplayFormatAlpha(original);//SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, original->w + x, original->h + y, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
 	//copy = ZSDL_ConvertImage(copy);
+	copy = SDL_ConvertSurfaceFormat(original, SDL_PIXELFORMAT_RGBA32, 0);
 	
 	to_rect.x = x;
 	to_rect.y = y;
@@ -665,9 +668,12 @@ SDL_Surface *ZSDL_NewSurface(int w, int h)
 
 	SDL_Surface *copy;
 
-	copy = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, w, h, 32, 0, 0, 0, 0);
+	// SDL1 // copy = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, w, h, 32, 0, 0, 0, 0);
 		//SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA, w, h, 32, 0xFF000000, 0x0000FF00, 0x00FF0000, 0x000000FF);
 	//copy = ZSDL_ConvertImage(copy);
+
+	copy = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
+	SDL_SetSurfaceBlendMode(copy, SDL_BLENDMODE_BLEND);
 
 	return copy;
 }
@@ -697,7 +703,7 @@ void put32pixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 	((Uint8*)pixel)[2] = color.r;
 	((Uint8*)pixel)[1] = color.g;
 	((Uint8*)pixel)[0] = color.b;
-	((Uint8*)pixel)[3] = color.unused;
+	((Uint8*)pixel)[3] = color.a;
 }
 
 SDL_Color get32pixel(SDL_Surface *surface, int x, int y)
@@ -741,7 +747,7 @@ SDL_Color get32pixel(SDL_Surface *surface, int x, int y)
 	return_color.r = red;
 	return_color.g = green;
 	return_color.b = blue;
-	return_color.unused = alpha;
+	return_color.a = alpha;
 	
 	return return_color;
 }

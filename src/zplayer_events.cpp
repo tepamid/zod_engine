@@ -101,7 +101,10 @@ void ZPlayer::motion_event(ZPlayer *p, char *data, int size, int dummy)
 
 		//move the mouse back
 		SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-		SDL_WarpMouse(p->mbutton.x, p->mbutton.y);
+		
+		// SDL_WarpMouse(p->mbutton.x, p->mbutton.y);
+		SDL_WarpMouseInWindow(p->sdlWindow, p->mbutton.x, p->mbutton.y);
+		
 		SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 		p->mouse_x = p->mbutton.x;
 		p->mouse_y = p->mbutton.y;
@@ -168,33 +171,34 @@ void ZPlayer::motion_event(ZPlayer *p, char *data, int size, int dummy)
 
 void ZPlayer::resize_event(ZPlayer *p, char *data, int size, int dummy)
 {
-	if(p->use_opengl)
-	{
-		if(p->is_windowed)
-			SDL_SetVideoMode(p->init_w, p->init_h, 0, SDL_OPENGL | SDL_RESIZABLE);
-		else
-			SDL_SetVideoMode(p->init_w, p->init_h, 0, SDL_OPENGL | SDL_FULLSCREEN);
+	// if(p->use_opengl)
+	// {
+	// 	if(p->is_windowed)
+	// 		SDL_SetVideoMode(p->init_w, p->init_h, 0, SDL_OPENGL | SDL_RESIZABLE);
+	// 	else
+	// 		SDL_SetVideoMode(p->init_w, p->init_h, 0, SDL_OPENGL | SDL_FULLSCREEN);
 
-		ResetOpenGLViewPort(p->init_w, p->init_h);
-	}
-	else
-	{
-		if(p->is_windowed)
-			SDL_SetVideoMode(p->init_w, p->init_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-		else
-			SDL_SetVideoMode(p->init_w, p->init_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE | SDL_FULLSCREEN);
-	}
+	// 	ResetOpenGLViewPort(p->init_w, p->init_h);
+	// }
+	// else
+	// {
+	// 	if(p->is_windowed)
+	// 		SDL_SetVideoMode(p->init_w, p->init_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+	// 	else
+	// 		SDL_SetVideoMode(p->init_w, p->init_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE | SDL_FULLSCREEN);
+	// }
 
-	ZSDL_Surface::SetScreenDimensions(p->init_w, p->init_h);
+	// ZSDL_Surface::SetScreenDimensions(p->init_w, p->init_h);
 	
-	p->zhud.ReRenderAll();
+	// p->zhud.ReRenderAll();
 	
-	p->zmap.SetViewingDimensions(p->init_w - HUD_WIDTH, p->init_h - HUD_HEIGHT);
+	// p->zmap.SetViewingDimensions(p->init_w - HUD_WIDTH, p->init_h - HUD_HEIGHT);
 
-	//move menus around
-	if(p->prev_w && p->prev_h) p->MainMenuMove(1.0 * p->init_w / p->prev_w, 1.0 * p->init_h / p->prev_h);
-	p->prev_w = p->init_w;
-	p->prev_h = p->init_h;
+	// //move menus around
+	// if(p->prev_w && p->prev_h) p->MainMenuMove(1.0 * p->init_w / p->prev_w, 1.0 * p->init_h / p->prev_h);
+	// p->prev_w = p->init_w;
+	// p->prev_h = p->init_h;
+
 
 // redraw_everything();
 }
@@ -457,10 +461,11 @@ void ZPlayer::wheeldown_event(ZPlayer *p, char *data, int size, int dummy)
 void ZPlayer::keydown_event(ZPlayer *p, char *data, int size, int dummy)
 {
 	key_event *pi = (key_event*)data;
-	int the_key = pi->the_key;
-	int the_unicode = pi->the_unicode;
+	SDL_Keycode the_key = pi->the_key;
+	SDL_Scancode the_scancode = pi->the_scancode;
 	
-	if(the_unicode) p->ProcessUnicode(the_unicode);
+	// TODO: fix
+	// if(the_unicode) p->ProcessUnicode(the_unicode);
 
 	//printf("keydown:%d unicode:%d\n", the_key, the_unicode);
 
@@ -468,43 +473,43 @@ void ZPlayer::keydown_event(ZPlayer *p, char *data, int size, int dummy)
 
 	switch(the_key)
 	{
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
+		case SDLK_0:
+		case SDLK_1:
+		case SDLK_2:
+		case SDLK_3:
+		case SDLK_4:
+		case SDLK_5:
+		case SDLK_6:
+		case SDLK_7:
+		case SDLK_8:
+		case SDLK_9:
 			if(p->CtrlDown())
-				p->select_info.SetGroup(the_key - '0');
+				p->select_info.SetGroup(the_key - SDLK_0);
 			else
 			{
-				p->LoadControlGroup(the_key - '0');
+				p->LoadControlGroup(the_key - SDLK_0);
 				//p->select_info.LoadGroup(the_key - '0');
 				//p->DetermineCursor();
 				//p->ClearDevWayPointsOfSelected();
 				//p->GiveHudSelected();
 			}
 			break;
-		case 27: //esc key
+		case SDLK_ESCAPE:
 			exit(0);
 			break;
-		case 305: // rctrl
+		case SDLK_RCTRL:
 			p->rctrl_down = true;
 			break;
-		case 306: // lctrl
+		case SDLK_LCTRL:
 			p->lctrl_down = true;
 			break;
-		case 307: // ralt
+		case SDLK_RALT:
 			p->ralt_down = true;
 			break;
-		case 308: // lalt
+		case SDLK_LALT:
 			p->lalt_down = true;
 			break;
-		case 273: //up
+		case SDLK_UP:
 			//p->zmap.ShiftViewUp();
 			if(!p->up_down)
 			{
@@ -513,7 +518,7 @@ void ZPlayer::keydown_event(ZPlayer *p, char *data, int size, int dummy)
 				p->last_vert_scroll_time = current_time();
 			}
 			break;
-		case 274: //down
+		case SDLK_DOWN:
 			//p->zmap.ShiftViewDown();
 			if(!p->down_down)
 			{
@@ -522,7 +527,7 @@ void ZPlayer::keydown_event(ZPlayer *p, char *data, int size, int dummy)
 				p->last_vert_scroll_time = current_time();
 			}
 			break;
-		case 275: //right
+		case SDLK_RIGHT: //right
 			//p->zmap.ShiftViewRight();
 			if(!p->right_down)
 			{
@@ -531,7 +536,7 @@ void ZPlayer::keydown_event(ZPlayer *p, char *data, int size, int dummy)
 				p->last_horz_scroll_time = current_time();
 			}
 			break;
-		case 276: //left
+		case SDLK_LEFT: //left
 			//p->zmap.ShiftViewLeft();
 			if(!p->left_down)
 			{
@@ -540,10 +545,10 @@ void ZPlayer::keydown_event(ZPlayer *p, char *data, int size, int dummy)
 				p->last_horz_scroll_time = current_time();
 			}
 			break;
-		case 304: //left shift
+		case SDLK_LSHIFT: //left shift
 			p->lshift_down = true;
 			break;
-		case 303: //right shift
+		case SDLK_RSHIFT: //right shift
 			p->rshift_down = true;
 			break;
 		case SDLK_F1:
@@ -561,43 +566,43 @@ void ZPlayer::keydown_event(ZPlayer *p, char *data, int size, int dummy)
 void ZPlayer::keyup_event(ZPlayer *p, char *data, int size, int dummy)
 {
 	key_event *pi = (key_event*)data;
-	int the_key = pi->the_key;
-	int the_unicode = pi->the_unicode;
+	SDL_Keycode the_key = pi->the_key;
+	SDL_Scancode the_scancode = pi->the_scancode;
 	//printf("keyup:%d\n", the_key);
 
 	p->SetAsciiState(the_key, false);
 
 	switch(the_key)
 	{
-		case 305: // rctrl
+		case SDLK_RCTRL:
 			p->rctrl_down = false;
 			break;
-		case 306: // lctrl
+		case SDLK_LCTRL: // lctrl
 			p->lctrl_down = false;
 			break;
-		case 307: // ralt
+		case SDLK_RALT: // ralt
 			p->ralt_down = false;
 			break;
-		case 308: // lalt
+		case SDLK_LALT: // lalt
 			p->lalt_down = false;
 			break;
-		case 273: //up
+		case SDLK_UP: //up
 			p->up_down = false;
 			break;
-		case 274: //down
+		case SDLK_DOWN: //down
 			p->down_down = false;
 			break;
-		case 275: //right
+		case SDLK_RIGHT: //right
 			p->right_down = false;
 			break;
-		case 276: //left
+		case SDLK_LEFT: //left
 			p->left_down = false;
 			break;
-		case 304: //left shift
+		case SDLK_LSHIFT: //left shift
 			p->lshift_down = false;
 			if(!p->ShiftDown()) p->SendDevWayPointsOfSelected();
 			break;
-		case 303: //right shift
+		case SDLK_RSHIFT: //right shift
 			p->rshift_down = false;
 			if(!p->ShiftDown()) p->SendDevWayPointsOfSelected();
 			break;

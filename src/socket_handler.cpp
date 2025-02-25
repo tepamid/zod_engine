@@ -460,21 +460,21 @@ char *SocketHandler::GetMAC(char *buf)
 	{
 		strncpy( sIfReq.ifr_name, pIfList->if_name, IF_NAMESIZE );
 
-		if ( ioctl(skfd, SIOCGIFHWADDR, &sIfReq) != 0 )
+		// if ( ioctl(skfd, SIOCGIFHWADDR, &sIfReq) != 0 )
 			printf( "SocketHandler::GetMAC: ioctl failed\n");
-		else
-		{
-			for(int i=0; i<6;i++)
-				if(sIfReq.ifr_ifru.ifru_hwaddr.sa_data[i])
-				{
-					memcpy(buf, sIfReq.ifr_ifru.ifru_hwaddr.sa_data, 6);
+		// else
+		// {
+		// 	for(int i=0; i<6;i++)
+		// 		if(sIfReq.ifr_ifru.ifru_hwaddr.sa_data[i])
+		// 		{
+		// 			memcpy(buf, sIfReq.ifr_ifru.ifru_hwaddr.sa_data, 6);
 
-					if(pIfList_tofree) if_freenameindex(pIfList_tofree);
-					close(skfd);
+		// 			if(pIfList_tofree) if_freenameindex(pIfList_tofree);
+		// 			close(skfd);
 
-					return buf;
-				}
-		}
+		// 			return buf;
+		// 		}
+		// }
 	}
 
 	if(pIfList_tofree) if_freenameindex(pIfList_tofree);

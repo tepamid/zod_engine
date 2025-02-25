@@ -625,7 +625,10 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
     /*
      * Clear surface to colorkey 
      */
-    memset(pc, (unsigned char) (src->format->colorkey & 0xff), dst->pitch * dst->h);
+    Uint32 colorkey = 0;
+    SDL_GetColorKey(src, &colorkey);  // Get color key from src surface
+    memset(pc, (unsigned char) (colorkey & 0xff), dst->pitch * dst->h);
+
     /*
      * Iterate through destination surface 
      */
@@ -851,9 +854,7 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
     if (src == NULL)
 	return (NULL);
 
-    if( src->flags & SDL_SRCCOLORKEY )
-    {
-        colorkey = src->format->colorkey;
+    if (SDL_GetColorKey(src, &colorkey) == 0) {  // Get colorkey from src surface
         SDL_GetRGB(colorkey, src->format, &r, &g, &b);
         colorKeyAvailable = 1;
     }
@@ -885,7 +886,8 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
 	SDL_BlitSurface(src, NULL, rz_src, NULL);
 
 		if(colorKeyAvailable)
-			SDL_SetColorKey(src, SDL_SRCCOLORKEY, colorkey);
+			// SDL_SetColorKey(src, SDL_SRCCOLORKEY, colorkey);
+			SDL_SetColorKey(src, SDL_TRUE, colorkey);
 	src_converted = 1;
 	is32bit = 1;
     }
@@ -971,7 +973,9 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
 	    /*
 	     * Turn on source-alpha support 
 	     */
-	    SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+	    // SDL1 SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceBlendMode(rz_dst, SDL_BLENDMODE_BLEND);  // Enable blending
+        SDL_SetSurfaceAlphaMod(rz_dst, 255);  // Set alpha (255 = fully opaque)
 	} else {
 	    /*
 	     * Copy palette and colorkey info 
@@ -986,7 +990,12 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
 	    transformSurfaceY(rz_src, rz_dst, dstwidthhalf, dstheighthalf,
 			      (int) (sanglezoominv), (int) (canglezoominv),
 			      flipx, flipy);
-	    SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+	    // SDL1 SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+
+        Uint32 colorkey;
+        if (SDL_GetColorKey(rz_src, &colorkey) == 0) {  // Get color key from rz_src surface
+            SDL_SetColorKey(rz_dst, SDL_TRUE, colorkey);  // Enable colorkey
+        }
 	}
 	/*
 	 * Unlock source surface 
@@ -1047,7 +1056,9 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
 	    /*
 	     * Turn on source-alpha support 
 	     */
-	    SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+	    // SDL1 SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceBlendMode(rz_dst, SDL_BLENDMODE_BLEND);  // Enable blending
+        SDL_SetSurfaceAlphaMod(rz_dst, 255);  // Set alpha (255 = fully opaque)
 	} else {
 	    /*
 	     * Copy palette and colorkey info 
@@ -1060,7 +1071,12 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
 	     * Call the 8bit transformation routine to do the zooming 
 	     */
 	    zoomSurfaceY(rz_src, rz_dst, flipx, flipy);
-	    SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+	    // SDL1 SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+
+        Uint32 colorkey;
+        if (SDL_GetColorKey(rz_src, &colorkey) == 0) {  // Get color key from rz_src surface
+            SDL_SetColorKey(rz_dst, SDL_TRUE, colorkey);  // Enable colorkey
+        }
 	}
 	/*
 	 * Unlock source surface 
@@ -1196,27 +1212,34 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
      * Check which kind of surface we have 
      */
     if (is32bit) {
-	/*
-	 * Call the 32bit transformation routine to do the zooming (using alpha) 
-	 */
-	zoomSurfaceRGBA(rz_src, rz_dst, flipx, flipy, smooth);
-	/*
-	 * Turn on source-alpha support 
-	 */
-	SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        /*
+        * Call the 32bit transformation routine to do the zooming (using alpha) 
+        */
+        zoomSurfaceRGBA(rz_src, rz_dst, flipx, flipy, smooth);
+        /*
+        * Turn on source-alpha support 
+        */
+	    // SDL1 SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceBlendMode(rz_dst, SDL_BLENDMODE_BLEND);  // Enable blending
+        SDL_SetSurfaceAlphaMod(rz_dst, 255);  // Set alpha (255 = fully opaque)
     } else {
-	/*
-	 * Copy palette and colorkey info 
-	 */
-	for (i = 0; i < rz_src->format->palette->ncolors; i++) {
-	    rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
-	}
-	rz_dst->format->palette->ncolors = rz_src->format->palette->ncolors;
-	/*
-	 * Call the 8bit transformation routine to do the zooming 
-	 */
-	zoomSurfaceY(rz_src, rz_dst, flipx, flipy);
-	SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+        /*
+        * Copy palette and colorkey info 
+        */
+        for (i = 0; i < rz_src->format->palette->ncolors; i++) {
+            rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
+        }
+        rz_dst->format->palette->ncolors = rz_src->format->palette->ncolors;
+        /*
+        * Call the 8bit transformation routine to do the zooming 
+        */
+        zoomSurfaceY(rz_src, rz_dst, flipx, flipy);
+        // SDL1 SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+
+        Uint32 colorkey;
+        if (SDL_GetColorKey(rz_src, &colorkey) == 0) {  // Get color key from rz_src surface
+            SDL_SetColorKey(rz_dst, SDL_TRUE, colorkey);  // Enable colorkey
+        }
     }
     /*
      * Unlock source surface 
@@ -1310,27 +1333,34 @@ SDL_Surface *shrinkSurface(SDL_Surface * src, int factorx, int factory)
      * Check which kind of surface we have 
      */
     if (is32bit) {
-	/*
-	 * Call the 32bit transformation routine to do the shrinking (using alpha) 
-	 */
-	shrinkSurfaceRGBA(rz_src, rz_dst, factorx, factory);
-	/*
-	 * Turn on source-alpha support 
-	 */
-	SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        /*
+        * Call the 32bit transformation routine to do the shrinking (using alpha) 
+        */
+        shrinkSurfaceRGBA(rz_src, rz_dst, factorx, factory);
+        /*
+        * Turn on source-alpha support 
+        */
+        // SDL1 SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
+        SDL_SetSurfaceBlendMode(rz_dst, SDL_BLENDMODE_BLEND);  // Enable blending
+        SDL_SetSurfaceAlphaMod(rz_dst, 255);  // Set alpha (255 = fully opaque)
     } else {
-	/*
-	 * Copy palette and colorkey info 
-	 */
-	for (i = 0; i < rz_src->format->palette->ncolors; i++) {
-	    rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
-	}
-	rz_dst->format->palette->ncolors = rz_src->format->palette->ncolors;
-	/*
-	 * Call the 8bit transformation routine to do the shrinking 
-	 */
-	shrinkSurfaceY(rz_src, rz_dst, factorx, factory);
-	SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+        /*
+        * Copy palette and colorkey info 
+        */
+        for (i = 0; i < rz_src->format->palette->ncolors; i++) {
+            rz_dst->format->palette->colors[i] = rz_src->format->palette->colors[i];
+        }
+        rz_dst->format->palette->ncolors = rz_src->format->palette->ncolors;
+        /*
+        * Call the 8bit transformation routine to do the shrinking 
+        */
+        shrinkSurfaceY(rz_src, rz_dst, factorx, factory);
+        // SDL1 SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, rz_src->format->colorkey);
+
+        Uint32 colorkey;
+        if (SDL_GetColorKey(rz_src, &colorkey) == 0) {  // Get color key from rz_src surface
+            SDL_SetColorKey(rz_dst, SDL_TRUE, colorkey);  // Enable colorkey
+        }
     }
     /*
      * Unlock source surface 

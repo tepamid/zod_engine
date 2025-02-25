@@ -1,6 +1,8 @@
 #ifndef _ZPLAYER_H_
 #define _ZPLAYER_H_
 
+#include <SDL2/SDL.h>
+
 #include "zclient.h"
 #include "zsdl.h"
 #include "zsdl_opengl.h"
@@ -40,8 +42,9 @@ struct news_entry
 
 struct key_event
 {
-	int the_key;
-	int the_unicode;
+	SDL_Keycode the_key;
+	SDL_Scancode the_scancode;
+	// int the_unicode;
 };
 
 class selection_info
@@ -146,7 +149,7 @@ public:
 	}
 };
 
-#define ASCII_DOWN_MAX (('z'-'a')+1)
+#define ASCII_DOWN_MAX ((SDLK_z - SDLK_a)+1)
 
 class ZPlayer : public ZClient
 {
@@ -171,6 +174,7 @@ class ZPlayer : public ZClient
 		void SetupEHandler();
 		void SetupSelectionImages();
 		void DoSplash();
+		void Flip();
 		void ProcessSDL();
 		void RenderScreen();
 		void RenderObjects();
@@ -194,8 +198,8 @@ class ZPlayer : public ZClient
 		void SendDevWayPointsOfObj(ZObject *obj);
 		bool DevWayPointsNoWay();
 		void ClearAsciiStates();
-		void SetAsciiState(int c, bool is_down);
-		bool AsciiDown(int c);
+		void SetAsciiState(SDL_Keycode c, bool is_down);
+		bool AsciiDown(SDL_Keycode c);
 		bool ShiftDown();
 		bool CtrlDown();
 		bool AltDown();
@@ -353,7 +357,12 @@ class ZPlayer : public ZClient
 		int init_w, init_h;
 		int prev_w, prev_h;
 		
-		SDL_Surface *screen;
+		// SDL1 SDL_Surface *screen;
+		SDL_Window   *sdlWindow;
+		SDL_Renderer *sdlRenderer;
+		SDL_Texture  *sdlTexture;
+		SDL_Surface  *screen;
+
 		TTF_Font *ttf_font;
 		TTF_Font *ttf_font_7;
 		int mouse_x, mouse_y;

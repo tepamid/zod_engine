@@ -6,7 +6,7 @@
 #include "zsdl.h"
 #include "common.h"
 
-#include <SDL/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 
 using namespace COMMON;
 using namespace std;

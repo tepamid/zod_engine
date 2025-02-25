@@ -1,6 +1,6 @@
 CC=g++
-CFLAGS=-c -g `sdl-config --cflags` -D DISABLE_OPENGL -D DISABLE_REGCHECK
-LDFLAGS=`sdl-config --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lm -lmysqlclient
+CFLAGS=-c -g `sdl2-config --cflags` -D DISABLE_OPENGL -D DISABLE_REGCHECK -D DISABLE_MYSQL
+LDFLAGS=`sdl2-config --libs` -lSDL2_image -lSDL2_mixer -lSDL2_ttf -lm
 INCLUDES=
 BASEFILES = common.cpp zsdl.cpp event_handler.cpp socket_handler.cpp server_socket.cpp client_socket.cpp zhud.cpp zfont_engine.cpp zfont.cpp zmini_map.cpp cursor.cpp zgui_window.cpp zbuildlist.cpp zsound_engine.cpp zmusic_engine.cpp zcomp_message_engine.cpp zpath_finding.cpp zpath_finding_astar.cpp zsettings.cpp zsdl_opengl.cpp zportrait.cpp zteam.cpp ztray.cpp zmysql.cpp zpsettings.cpp ztime.cpp zvote.cpp zunitrating.cpp zencrypt_aes.cpp zolists.cpp zgui_main_menu_base.cpp zgui_main_menu_widget.cpp
 COREFILES = zcore.cpp zserver.cpp zserver_events.cpp zserver_commands.cpp zclient.cpp zplayer.cpp zplayer_events.cpp zbot.cpp zbot_events.cpp SDL_rotozoom.cpp
