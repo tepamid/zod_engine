@@ -33,4 +33,6 @@ Command list...
 Example usage...
 zod_engine.exe -c localhost -r 800x600 -w
 zod_engine.exe -m level1.map -b 1 -p 1
+zod_engine.exe -c localhost -n zlover -t red -r 1024x768 -w -o
 ==================================================================
+./zod -m p02_bb_orig01.map -b blue -t red

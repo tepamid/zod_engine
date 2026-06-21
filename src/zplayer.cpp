@@ -363,6 +363,8 @@ void ZPlayer::Setup()
 
 void ZPlayer::InitSDL()
 {
+	printf("InitSDL\n");
+
 	int audio_rate = 22050;
 	Uint16 audio_format = AUDIO_S16; /* 16-bit stereo */
 	int audio_channels = 2;
@@ -396,6 +398,9 @@ void ZPlayer::InitSDL()
 	ZSDL_Surface::SetUseOpenGL(use_opengl);
 	ZSDL_Surface::SetScreenDimensions(init_w, init_h);
 
+	if (use_opengl) printf("use_opengl\n"); else printf("no use_opengl\n");
+	if (is_windowed) printf("is_windowed\n"); else printf("no is_windowed\n");
+
 	if(use_opengl)
 	{
 		//if(is_windowed)
@@ -426,15 +431,16 @@ void ZPlayer::InitSDL()
 	}
 	else
 	{
-		// if(is_windowed) {
-		// 	// SDL1 screen = SDL_SetVideoMode(init_w, init_h, 32, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_RESIZABLE);
-		// 	sdlWindow = SDL_CreateWindow("Zod Engine",
-        //                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        //                               init_w, init_h,
-        //                               SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
+		if(is_windowed) {
+			// SDL1 screen = SDL_SetVideoMode(init_w, init_h, 32, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_RESIZABLE);
+			sdlWindow = SDL_CreateWindow("Zod Engine",
+                                      SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                      init_w, init_h,
+                                      0 // SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE
+									);
 
-		// } 
-		// else 
+		} 
+		else 
 		{
 			// SDL1 screen = SDL_SetVideoMode(init_w, init_h, 32, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_RESIZABLE|SDL_FULLSCREEN);
 
@@ -540,6 +546,8 @@ void ZPlayer::InitSDL()
 
 int ZPlayer::Load_Graphics(void *p)
 {
+	printf("Load graphics\n");
+
 	const int max_items = 81;
 	int loaded_items = 0;
 

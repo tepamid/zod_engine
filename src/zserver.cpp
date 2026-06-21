@@ -88,6 +88,8 @@ void ZServer::Setup()
 
 void ZServer::InitBot(int bot_team, bool do_init)
 {
+	printf("ZServer::InitBot %d\n", bot_team);
+
 	if(bot_team<0) return;
 	if(bot_team>=MAX_TEAM_TYPES) return;
 	if(bot_team==NULL_TEAM) return;
